@@ -1,0 +1,35 @@
+version: '3.3'
+
+services:
+    nginx:
+        build:
+            context: .
+            dockerfile: docker/Nginx.Dockerfile
+        image: nginx
+        ports:
+            - 80:80
+        links:
+            -   fpm
+        volumes:
+            - ./:/var/www/laravel-docker
+    fpm:
+        build:
+            context: .
+            dockerfile: docker/Fpm.Dockerfile
+        volumes:
+            -   ./:/var/www/laravel-docker
+        links:
+            -   mysql
+        environment:
+            - PHP_INI_MEMORY_LIMIT=2048M
+            - PHP_MAX_EXECUTION_TIME=600
+            - PHP_MEMORY_LIMIT=2048M
+    mysql:
+        image: mysql:8.0
+        ports:
+            -   3306:3306
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=laravel
+        command: --max_allowed_packet=2048M
+
